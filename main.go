@@ -33,5 +33,19 @@ func fetchURL(url string, wg *sync.WaitGroup, ch chan<- Result) {
 }
 
 func main() {
-	fmt.Println("Hello there!")
+	urls := []string{"https://example.com", "https://example.org"}
+	var wg sync.WaitGroup
+	ch := make(chan Result, len(urls))
+
+	for _, url := range urls {
+		wg.Add(1)
+		go fetchURL(url, &wg, ch)
+	}
+
+	wg.Wait()
+	close(ch)
+
+	for result := range ch {
+		fmt.Printf("URL: %S, Title: %s\n", result.URL, result.Title)
+	}
 }
